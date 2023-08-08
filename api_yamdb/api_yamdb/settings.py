@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     #Закомментировал чтобы сервер запустить
     # 'catalog.apps.ApiConfig',
     # 'catalog.apps.ReviewsConfig',
+    #зарегистрировать приложение с кастомным юзером
+    'users.apps.UsersConfig'
 ]
 
 #Добавил настройки REST сюда
@@ -74,6 +76,9 @@ DATABASES = {
     }
 }
 
+
+#CUSTOM USER MODEL Очень важно!
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Password validation
 
