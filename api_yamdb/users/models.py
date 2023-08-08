@@ -15,3 +15,4 @@ class CustomUser(AbstractUser):
                             default='user',
                             blank=False,
                             max_length=25)
+    REQUIRED_FIELDS = ['username', 'email']
