@@ -21,10 +21,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #Закомментировал чтобы сервер запустить
-    # 'catalog.apps.ApiConfig',
-    # 'catalog.apps.ReviewsConfig',
-    #зарегистрировать приложение с кастомным юзером
+    'api.apps.ApiConfig',
+    'reviews.apps.ReviewsConfig',
     'users.apps.UsersConfig'
 ]
 
