@@ -39,7 +39,7 @@ class CustomUser(AbstractUser):
                             default='user',
                             blank=False,
                             max_length=25)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     first_name = models.CharField('Имя', max_length=150, null=True)
@@ -48,8 +48,3 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ['email']
-
-
-# class CodeEmail(models.Model):
-#     code = models.IntegerField()
-#     email = models.EmailField(max_length=254)
