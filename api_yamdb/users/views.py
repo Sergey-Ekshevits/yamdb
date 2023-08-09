@@ -23,7 +23,7 @@ class RegistrationAPIView(APIView):
         generated_code = confirmation_code_generator()
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(confirmation_code=generated_code)
         send_verification_mail(user_email, generated_code)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -33,10 +33,9 @@ def get_jwt_token(request):
     serializer = ConfirmationCodeSerializer(data=request.data)
     if serializer.is_valid():
         username = serializer.validated_data['username']
-        confirmation_code = serializer.validated_data['confirmation_code']
-
-        # Verify the confirmation code and username
-        if confirmation_code:
+        confirmation_code = int(serializer.validated_data['confirmation_code'])
+        user = get_object_or_404(User, username=username)
+        if confirmation_code == user.confirmation_code:
             user = get_object_or_404(User, username=username)
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)

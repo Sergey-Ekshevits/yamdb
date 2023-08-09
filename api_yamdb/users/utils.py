@@ -1,4 +1,6 @@
 import random
+
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 
 # from rest_framework_simplejwt.tokens import AccessToken
@@ -10,6 +12,8 @@ from django.core.mail import send_mail
 #     return {
 #         'token': str(refresh.access_token),
 #     }
+
+User = get_user_model()
 
 
 def confirmation_code_generator():
