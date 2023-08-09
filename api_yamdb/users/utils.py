@@ -1,6 +1,5 @@
 import random
-
-from django.contrib.auth import get_user_model
+import string
 from django.core.mail import send_mail
 
 # from rest_framework_simplejwt.tokens import AccessToken
@@ -13,12 +12,11 @@ from django.core.mail import send_mail
 #         'token': str(refresh.access_token),
 #     }
 
-User = get_user_model()
 
 
 def confirmation_code_generator():
-    return int(''.join([str(random.randint(0,10)) for _ in range(6)]))
-
+    return str(''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12)))
+print(confirmation_code_generator())
 
 def send_verification_mail(email, code):
     generated_code = confirmation_code_generator()

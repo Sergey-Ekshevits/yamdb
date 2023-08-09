@@ -44,7 +44,7 @@ class CustomUser(AbstractUser):
     is_superuser = models.BooleanField(default=False)
     first_name = models.CharField('Имя', max_length=150, null=True)
     last_name = models.CharField('Фамилия', max_length=150, null=True)
-    confirmation_code = models.IntegerField()
+    confirmation_code = models.CharField(null=True, max_length=25)
     objects = CustomUserManager()
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ['email']
