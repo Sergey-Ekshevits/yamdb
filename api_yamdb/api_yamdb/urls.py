@@ -14,8 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.views.generic import TemplateView
+from rest_framework_simplejwt import views as jwt_views
+from users.views import get_jwt_token
+from users.views import RegistrationAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +27,7 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
+    path('api/', include('api.urls')),
+    path('auth/signup/', RegistrationAPIView.as_view()),
+    path('auth/token/', get_jwt_token, name='token_obtain_pair')
 ]
