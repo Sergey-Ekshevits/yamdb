@@ -15,7 +15,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs['username'].lower() == 'me':
-            raise serializers.ValidationError('Имя пользователя не может быть \'me\'')
+            raise serializers.ValidationError('Некорректное имя пользователя')
         return attrs
 
 

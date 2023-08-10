@@ -1,7 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-# Create your views here.
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
@@ -12,6 +10,7 @@ from .serializers import ConfirmationCodeSerializer, RegistrationSerializer
 from .utils import send_verification_mail, confirmation_code_generator
 
 User = get_user_model()
+
 
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
@@ -27,6 +26,7 @@ class RegistrationAPIView(APIView):
         send_verification_mail(user_email, generated_code)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 def get_jwt_token(request):
