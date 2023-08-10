@@ -1,12 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import ConfirmationCodeSerializer, RegistrationSerializer
+from .serializers import ConfirmationCodeSerializer, RegistrationSerializer, UsersSerializer
 from .utils import send_verification_mail, confirmation_code_generator
 
 User = get_user_model()
@@ -20,10 +21,10 @@ class RegistrationAPIView(APIView):
         user = request.data
         user_email = request.data.get('email')
         generated_code = confirmation_code_generator()
+        send_verification_mail(user_email, generated_code)
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save(confirmation_code=generated_code)
-        send_verification_mail(user_email, generated_code)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -44,3 +45,10 @@ def get_jwt_token(request):
             return Response({'message': 'Invalid confirmation code'}, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UserListViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    filter_backends = [filters.SearchFilter]
+    permission_classes = (IsAdminUser,)
+    search_fields = ['username']
