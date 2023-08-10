@@ -16,7 +16,6 @@ from django.core.mail import send_mail
 
 def confirmation_code_generator():
     return str(''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12)))
-print(confirmation_code_generator())
 
 def send_verification_mail(email, code):
     generated_code = confirmation_code_generator()

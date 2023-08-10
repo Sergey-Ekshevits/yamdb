@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters
+from rest_framework import status, filters, generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework import viewsets
@@ -46,7 +46,13 @@ def get_jwt_token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserListViewset(viewsets.ReadOnlyModelViewSet):
+class CreateListViewSet(mixins.CreateModelMixin,
+                        mixins.ListModelMixin,
+                        viewsets.GenericViewSet):
+    pass
+
+
+class UserListViewset(CreateListViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     filter_backends = [filters.SearchFilter]

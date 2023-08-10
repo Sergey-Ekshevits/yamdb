@@ -12,7 +12,7 @@ router.register(r'genres', GenreViewSet)
 router.register(r'titles', TitleViewSet)
 
 #роутеры для работы с пользователями
-router.register(r'users', UserListViewset)
+router.register(r'users', UserListViewset, basename='users')
 
 urlpatterns = [
     path('v1/', include(router.urls)),
