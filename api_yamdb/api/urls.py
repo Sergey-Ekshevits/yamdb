@@ -11,7 +11,7 @@ router.register(r'titles', TitleViewSet)
 router.register(
     r'titles/(?P<title_id>[^/.]+)/reviews', ReviewViewSet, basename='reviews')
 router.register(
-    r'titles/(?P<title_id>[^/.])/reviews/(?P<review_id>[^/.])/comments',
+    r'titles/(?P<title_id>[^/.]+)/reviews/(?P<review_id>[^/.]+)/comments',
     CommentViewSet, basename='comments')
 
 urlpatterns = [

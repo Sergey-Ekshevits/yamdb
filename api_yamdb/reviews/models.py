@@ -1,5 +1,5 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import UniqueConstraint
 from users.models import CustomUser
 
 
@@ -39,10 +39,13 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-      
-  
+
+
 class Review(models.Model):
     """Класс отзывов."""
+
+    CHOICES = [(score, score) for score in range(1, 11)]
+
     text = models.TextField('Текст отзыва', help_text='Отзыв')
 
     author = models.ForeignKey(CustomUser,
@@ -51,12 +54,10 @@ class Review(models.Model):
 
     score = models.SmallIntegerField('Оценка',
                                      help_text='от 1 до 10',
-                                     validators=[MinValueValidator(1),
-                                                 MaxValueValidator(10)])
+                                     choices=CHOICES)
 
     pub_date = models.DateTimeField('Дата добавления',
-                                    auto_now_add=True,
-                                    db_index=True)
+                                    auto_now_add=True)
 
     title = models.ForeignKey(Title,
                               on_delete=models.CASCADE,
@@ -66,6 +67,12 @@ class Review(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ('-pub_date',)
+        constraints = [
+            UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_author_title_review'
+            )
+        ]
 
     def __str__(self):
         return self.text
@@ -81,7 +88,7 @@ class Comment(models.Model):
                                related_name='comments')
 
     pub_date = models.DateTimeField('Дата добавления',
-                                    auto_now_add=True, db_index=True)
+                                    auto_now_add=True)
 
     review = models.ForeignKey(Review,
                                on_delete=models.CASCADE,

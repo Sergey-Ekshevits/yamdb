@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .serializers import (
     CategorySerializer, GenreSerializer, TitleReadSerializer,
@@ -36,10 +37,11 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleReadSerializer
         return TitleWriteSerializer
 
-      
+
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     queryset = Review.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     # permission_classes = доступно без токена/user,moderator,admin
 
     def get_queryset(self):
