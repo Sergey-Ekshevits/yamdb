@@ -21,10 +21,12 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleReadSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = ('id', 'name', 'year', 'rating',
+                  'description', 'genre', 'category')
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
@@ -45,8 +47,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = (
-            'id', 'text', 'author', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
         """Запрещает повторно оставлять отзывы."""
@@ -69,5 +70,4 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = (
-            'id', 'text', 'author', 'pub_date')
+        fields = ('id', 'text', 'author', 'pub_date')
