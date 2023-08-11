@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import UniqueConstraint
+from users.models import CustomUser
 
 
 class CategoryGenreMixin(models.Model):
@@ -37,3 +39,65 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    """Класс отзывов."""
+
+    CHOICES = [(score, score) for score in range(1, 11)]
+
+    text = models.TextField('Текст отзыва', help_text='Отзыв')
+
+    author = models.ForeignKey(CustomUser,
+                               on_delete=models.CASCADE,
+                               related_name='reviews')
+
+    score = models.SmallIntegerField('Оценка',
+                                     help_text='от 1 до 10',
+                                     choices=CHOICES)
+
+    pub_date = models.DateTimeField('Дата добавления',
+                                    auto_now_add=True)
+
+    title = models.ForeignKey(Title,
+                              on_delete=models.CASCADE,
+                              related_name='reviews')
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        ordering = ('-pub_date',)
+        constraints = [
+            UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_author_title_review'
+            )
+        ]
+
+    def __str__(self):
+        return self.text
+
+
+class Comment(models.Model):
+    """Класс комментариев."""
+
+    text = models.TextField('Текст комментария')
+
+    author = models.ForeignKey(CustomUser,
+                               on_delete=models.CASCADE,
+                               related_name='comments')
+
+    pub_date = models.DateTimeField('Дата добавления',
+                                    auto_now_add=True)
+
+    review = models.ForeignKey(Review,
+                               on_delete=models.CASCADE,
+                               related_name='comments')
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ('-pub_date',)
+
+    def __str__(self):
+        return self.text

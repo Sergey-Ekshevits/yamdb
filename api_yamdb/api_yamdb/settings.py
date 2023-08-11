@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
 ]
 
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
