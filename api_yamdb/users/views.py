@@ -77,7 +77,7 @@ class CreateListViewSet(mixins.CreateModelMixin,
 #     #     return User.objects.filter(user=current_user.id)
 
 
-# TODO это пока работает, надо допилить чтобы закрыть от анонимного пользователя
+
 class UserProfileAPI(APIView):
     permission_classes = [IsOwner]
 
@@ -101,6 +101,13 @@ class UserCreateListViewset(CreateListViewSet):
     filter_backends = [filters.SearchFilter]
     permission_classes = (IsAdminUser,)
     search_fields = ['username']
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        if user.role == 'admin':
+            user.is_staff = True
+        user.save()
+
 
 class UsersViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
