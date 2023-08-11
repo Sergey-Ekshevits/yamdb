@@ -11,12 +11,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = ['username', 'email']
 
     def create(self, validated_data):
-        return CustomUser.objects.create_user(**validated_data)
-
-    def validate(self, attrs):
-        if attrs['username'].lower() == 'me':
-            raise serializers.ValidationError('Некорректное имя пользователя')
-        return attrs
+        obj, result = CustomUser.objects.get_or_create(**validated_data)
+        print(result)
+        return obj
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):

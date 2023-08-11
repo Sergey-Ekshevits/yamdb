@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters, generics, mixins
+from rest_framework import status, filters, mixins
 from rest_framework.decorators import api_view
-from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -10,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import ConfirmationCodeSerializer, RegistrationSerializer, UsersSerializer
 from .utils import send_verification_mail, confirmation_code_generator
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwner
 
 User = get_user_model()
 
@@ -23,12 +22,18 @@ class RegistrationAPIView(APIView):
         user = request.data
         user_email = request.data.get('email')
         generated_code = confirmation_code_generator()
-        send_verification_mail(user_email, generated_code)
         serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(confirmation_code=generated_code)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        existing_user = User.objects.filter(email=user_email).first()
+        send_verification_mail(user_email, generated_code)
+        if not existing_user:
+            serializer.is_valid(raise_exception=True)
+            serializer.save(confirmation_code=generated_code)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            existing_user.confirmation_code = generated_code
+            existing_user.save()
+#Это безобразие, но пока так
+        return Response("success", status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -61,24 +66,33 @@ class CreateListViewSet(mixins.CreateModelMixin,
 #                         viewsets.GenericViewSet):
 #     pass
 #
-# # RetrieveUpdateAPIView
-# class UserProfileViewSet(RetrieveUpdateViewSet):
-#     # queryset = User.objects.all()
-#     serializer_class = UsersSerializer
-#     permission_classes = [IsOwnerOrReadOnly]
 #
-#     def get_queryset(self):
-#         current_user = self.request.user
-#         return User.objects.filter(user=current_user.id)
+# class UserProfileViewSet(RetrieveUpdateViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UsersSerializer
+#     permission_classes = [IsOwner]
+#
+#     # def get_queryset(self):
+#     #     current_user = self.request.user
+#     #     return User.objects.filter(user=current_user.id)
 
 
 # TODO это пока работает, надо допилить чтобы закрыть от анонимного пользователя
 class UserProfileAPI(APIView):
+    permission_classes = [IsOwner]
 
-    def get(selfs, request):
+    def get(self, request):
         user = request.user
         serializer = UsersSerializer(user)
         return Response(serializer.data)
+
+    def patch(self, request):
+        user = request.user
+        serializer = UsersSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserListViewset(CreateListViewSet):
