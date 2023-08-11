@@ -95,9 +95,14 @@ class UserProfileAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserListViewset(CreateListViewSet):
+class UserCreateListViewset(CreateListViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     filter_backends = [filters.SearchFilter]
     permission_classes = (IsAdminUser,)
     search_fields = ['username']
+
+class UsersViewset(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    permission_classes = [IsAdminUser]

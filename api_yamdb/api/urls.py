@@ -3,14 +3,14 @@ from django.urls import include, path
 
 from .views import CategoryViewSet, GenreViewSet, TitleViewSet
 
-from users.views import UserListViewset
+from users.views import UserCreateListViewset
 
 from users.views import RegistrationAPIView, get_jwt_token, UserProfileAPI
 
 router = routers.DefaultRouter()
 #роутеры для работы с пользователями
 # router.register('users/me', UserProfileViewSet, basename='users')
-router.register(r'users', UserListViewset)
+router.register(r'users', UserCreateListViewset)
 
 router.register(r'categories', CategoryViewSet)
 router.register(r'genres', GenreViewSet)
