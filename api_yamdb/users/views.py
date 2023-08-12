@@ -18,7 +18,7 @@ User = get_user_model()
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
-
+#это всё плохо, надо переделывать
     def post(self, request):
         user = request.data
         user_email = request.data.get('email')
@@ -26,7 +26,6 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         existing_user = User.objects.filter(email=user_email).first()
         send_verification_mail(user_email, generated_code)
-        print(serializer.is_valid())
         if not existing_user:
             serializer.is_valid(raise_exception=True)
             serializer.save(confirmation_code=generated_code)
