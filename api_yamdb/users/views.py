@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -29,12 +30,12 @@ class RegistrationAPIView(APIView):
         if not existing_user:
             serializer.is_valid(raise_exception=True)
             serializer.save(confirmation_code=generated_code)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             existing_user.confirmation_code = generated_code
             existing_user.save()
         # Это безобразие, но пока так
-        return Response("success", status=status.HTTP_201_CREATED)
+        return Response("success", status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -55,7 +56,7 @@ def get_jwt_token(request):
 
 
 class UserProfileAPI(APIView):
-    permission_classes = [IsOwner]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
@@ -73,6 +74,7 @@ class UserProfileAPI(APIView):
 
 class UsersViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
+    http_method_names = ('patch', 'get', 'delete', 'post')
     serializer_class = UsersSerializer
     filter_backends = [filters.SearchFilter]
     permission_classes = (IsAdminUser,)
@@ -92,3 +94,9 @@ class UsersViewset(viewsets.ModelViewSet):
         else:
             user.is_staff = False
         user.save()
+
+    # def update(self, request, *args, **kwargs):
+    #     raise MethodNotAllowed(request.method)
+
+    # def put(self):
+    #     return Response(status= status.HTTP_405_METHOD_NOT_ALLOWED)
