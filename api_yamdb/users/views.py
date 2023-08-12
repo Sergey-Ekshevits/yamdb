@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .permissions import IsOwner
+from .permissions import IsAdmin
 from .serializers import (ConfirmationCodeSerializer, RegistrationSerializer,
                           UsersSerializer)
 from .utils import confirmation_code_generator, send_verification_mail
@@ -23,14 +23,18 @@ class RegistrationAPIView(APIView):
     def post(self, request):
         user = request.data
         user_email = request.data.get('email')
+        username = request.data.get('username')
         generated_code = confirmation_code_generator()
         serializer = self.serializer_class(data=user)
-        existing_user = User.objects.filter(email=user_email).first()
+        existing_user = User.objects.filter(email=user_email, username=username).first()
         send_verification_mail(user_email, generated_code)
+        # print((existing_user.username, existing_user.email) != (username, user_email))
         if not existing_user:
             serializer.is_valid(raise_exception=True)
             serializer.save(confirmation_code=generated_code)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        elif (existing_user.username, existing_user.email) != (username, user_email):
+            return Response("bad user", status=status.HTTP_400_BAD_REQUEST)
         else:
             existing_user.confirmation_code = generated_code
             existing_user.save()
@@ -77,7 +81,7 @@ class UsersViewset(viewsets.ModelViewSet):
     http_method_names = ('patch', 'get', 'delete', 'post')
     serializer_class = UsersSerializer
     filter_backends = [filters.SearchFilter]
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAdmin,)
     lookup_field = 'username'
     search_fields = ['username']
 

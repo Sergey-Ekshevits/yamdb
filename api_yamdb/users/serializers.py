@@ -45,10 +45,20 @@ class ConfirmationCodeSerializer(serializers.Serializer):
 
 class UsersSerializer(serializers.ModelSerializer):
     # username = serializers.RegexField(r"^[\w.@+-]+\z")
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     http_method = self.context['request'].method
+    #
+    #     if http_method in ['POST', 'PATCH']:
+    #         self.fields['email'].required = True
+    #     else:
+    #         self.fields['email'].required = False
+
     username = serializers.CharField(max_length=150, required=True)
     email = serializers.EmailField(max_length=254)
     first_name = serializers.CharField(max_length=150, required=False)
     last_name = serializers.CharField(max_length=150, required=False)
+    # password = serializers.CharField(max_length=254, write_only=True)
 
     class Meta:
         model = User
@@ -62,12 +72,12 @@ class UsersSerializer(serializers.ModelSerializer):
             )
         ]
 
-    def get_fields(self):
-        fields = super().get_fields()
-        request = self.context.get("request", None)
-        if request and request.user.is_staff and request.user.is_superuser is False:
-            fields['role'].read_only = True
-        return fields
+    # def get_fields(self):
+    #     fields = super().get_fields()
+    #     request = self.context.get("request", None)
+    #     if request and request.user.is_staff and request.user.is_superuser is False:
+    #         fields['role'].read_only = True
+    #     return fields
 
     def validate_username(self, value):
         if value.lower() == 'me' or not re.match("^[\w.@+-]+$", value):
