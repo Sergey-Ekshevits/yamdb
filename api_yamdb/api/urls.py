@@ -17,8 +17,7 @@ router.register(r'titles', TitleViewSet)
 urlpatterns = [
     # пока так некрасиво, но работает. В роутеры если так добавлять выдает ошибку
     path('v1/auth/signup/', RegistrationAPIView.as_view()),
-    path('v1/auth/token/', get_jwt_token, name='token_obtain_pair'),
+    path('v1/auth/token/', get_jwt_token, name='token_obtain'),
     path('v1/users/me/', UserProfileAPI.as_view()),
     path('v1/', include(router.urls)),
 ]
-

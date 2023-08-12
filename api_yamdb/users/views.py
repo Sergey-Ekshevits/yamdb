@@ -1,15 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import ConfirmationCodeSerializer, RegistrationSerializer, UsersSerializer
-from .utils import send_verification_mail, confirmation_code_generator
+
 from .permissions import IsOwner
+from .serializers import (ConfirmationCodeSerializer, RegistrationSerializer,
+                          UsersSerializer)
+from .utils import confirmation_code_generator, send_verification_mail
 
 User = get_user_model()
 
@@ -33,7 +34,7 @@ class RegistrationAPIView(APIView):
         else:
             existing_user.confirmation_code = generated_code
             existing_user.save()
-#Это безобразие, но пока так
+        # Это безобразие, но пока так
         return Response("success", status=status.HTTP_201_CREATED)
 
 
