@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters, mixins
+from rest_framework import status, filters
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework import viewsets
@@ -25,6 +25,7 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         existing_user = User.objects.filter(email=user_email).first()
         send_verification_mail(user_email, generated_code)
+        print(serializer.is_valid())
         if not existing_user:
             serializer.is_valid(raise_exception=True)
             serializer.save(confirmation_code=generated_code)
@@ -53,31 +54,6 @@ def get_jwt_token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CreateListViewSet(mixins.CreateModelMixin,
-                        mixins.ListModelMixin,
-                        viewsets.GenericViewSet):
-    pass
-
-
-# Не сработало
-
-# class RetrieveUpdateViewSet(mixins.RetrieveModelMixin,
-#                         mixins.UpdateModelMixin,
-#                         viewsets.GenericViewSet):
-#     pass
-#
-#
-# class UserProfileViewSet(RetrieveUpdateViewSet):
-#     queryset = User.objects.all()
-#     serializer_class = UsersSerializer
-#     permission_classes = [IsOwner]
-#
-#     # def get_queryset(self):
-#     #     current_user = self.request.user
-#     #     return User.objects.filter(user=current_user.id)
-
-
-
 class UserProfileAPI(APIView):
     permission_classes = [IsOwner]
 
@@ -95,11 +71,12 @@ class UserProfileAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserCreateListViewset(CreateListViewSet):
+class UsersViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     filter_backends = [filters.SearchFilter]
     permission_classes = (IsAdminUser,)
+    lookup_field = 'username'
     search_fields = ['username']
 
     def perform_create(self, serializer):
@@ -108,8 +85,10 @@ class UserCreateListViewset(CreateListViewSet):
             user.is_staff = True
         user.save()
 
-
-class UsersViewset(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UsersSerializer
-    permission_classes = [IsAdminUser]
+    def perform_update(self, serializer):
+        user = serializer.save()
+        if user.role == 'admin':
+            user.is_staff = True
+        else:
+            user.is_staff = False
+        user.save()
