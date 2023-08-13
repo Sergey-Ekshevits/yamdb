@@ -3,7 +3,10 @@ from django.urls import include, path
 
 from .views import CategoryViewSet, GenreViewSet, TitleViewSet
 
-from users.views import RegistrationAPIView, get_jwt_token, UserProfileAPI, UsersViewset
+from users.views import (RegistrationAPIView,
+                         get_jwt_token,
+                         UserProfileAPI,
+                         UsersViewset)
 
 router = routers.DefaultRouter()
 router.register(r'users', UsersViewset)
