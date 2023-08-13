@@ -1,5 +1,6 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -33,7 +34,10 @@ class CustomUser(AbstractUser):
         ('moderator', 'Модератор'),
         ('admin', 'Администратор'),
     ]
-    username = models.CharField('Имя пользователя', max_length=150, unique=True)
+    username = models.CharField('Имя пользователя',
+                                max_length=150,
+                                unique=True
+)
     email = models.EmailField('E-mail пользователя', max_length=254, unique=True)
     bio = models.TextField('Биография', blank=True)
     role = models.CharField('Роль',
@@ -49,3 +53,11 @@ class CustomUser(AbstractUser):
     confirmation_code = models.CharField(null=True, max_length=25)
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ['email']
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='unique_username_email'
+            )
+        ]
