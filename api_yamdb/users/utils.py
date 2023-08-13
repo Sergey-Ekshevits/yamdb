@@ -9,7 +9,7 @@ def confirmation_code_generator():
 
 
 def send_verification_mail(email, code):
-    subject = 'Код подтверждения'
+    subject = 'Код подтверждения для входа на YaMDB'
     message = f'Ваш код подтверждения для входа:\n{code}\n'
     from_email = 'webmaster@localhost'
     recipient_list = [email, ]
