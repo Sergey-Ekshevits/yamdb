@@ -4,19 +4,14 @@ from django.contrib.auth.forms import UserCreationForm
 from users.models import CustomUser
 from django import forms
 
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField()
 
     class Meta:
         model = CustomUser
         fields = ('username', 'email')
-    #
-    # def save(self, commit=True):
-    #     user = super().save(commit=False)
-    #     user.set_unusable_password()
-    #     if commit:
-    #         user.save()
-    #     return user
+
 
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
@@ -27,6 +22,5 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-# admin.site.unregister(User)
-admin.site.register(CustomUser, CustomUserAdmin)
 
+admin.site.register(CustomUser, CustomUserAdmin)
