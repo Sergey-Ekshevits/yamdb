@@ -1,16 +1,16 @@
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .permissions import IsAdmin
 from .serializers import (ConfirmationCodeSerializer, RegistrationSerializer,
-                          UsersSerializer)
+                          UserProfileSerializer, UsersSerializer)
 from .utils import confirmation_code_generator, send_verification_mail
 
 User = get_user_model()
@@ -19,7 +19,7 @@ User = get_user_model()
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
-#это всё плохо, надо переделывать
+
     def post(self, request):
         user = request.data
         user_email = request.data.get('email')
@@ -28,17 +28,18 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         existing_user = User.objects.filter(email=user_email, username=username).first()
         send_verification_mail(user_email, generated_code)
-        # print((existing_user.username, existing_user.email) != (username, user_email))
         if not existing_user:
             serializer.is_valid(raise_exception=True)
-            serializer.save(confirmation_code=generated_code)
+            try:
+                serializer.save(confirmation_code=generated_code)
+            except IntegrityError:
+                return Response("bad request", status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_200_OK)
         elif (existing_user.username, existing_user.email) != (username, user_email):
             return Response("bad user", status=status.HTTP_400_BAD_REQUEST)
         else:
             existing_user.confirmation_code = generated_code
             existing_user.save()
-        # Это безобразие, но пока так
         return Response("success", status=status.HTTP_200_OK)
 
 
@@ -61,15 +62,16 @@ def get_jwt_token(request):
 
 class UserProfileAPI(APIView):
     permission_classes = [IsAuthenticated]
+    serializers_class = UserProfileSerializer
 
     def get(self, request):
         user = request.user
-        serializer = UsersSerializer(user)
+        serializer = self.serializers_class(user)
         return Response(serializer.data)
 
     def patch(self, request):
         user = request.user
-        serializer = UsersSerializer(user, data=request.data, partial=True)
+        serializer = self.serializers_class(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -86,6 +88,8 @@ class UsersViewset(viewsets.ModelViewSet):
     search_fields = ['username']
 
     def perform_create(self, serializer):
+        print(serializer.is_valid())
+        serializer.is_valid(raise_exception=True)
         user = serializer.save()
         if user.role == 'admin':
             user.is_staff = True
@@ -98,9 +102,3 @@ class UsersViewset(viewsets.ModelViewSet):
         else:
             user.is_staff = False
         user.save()
-
-    # def update(self, request, *args, **kwargs):
-    #     raise MethodNotAllowed(request.method)
-
-    # def put(self):
-    #     return Response(status= status.HTTP_405_METHOD_NOT_ALLOWED)
