@@ -1,40 +1,72 @@
+from django.db.models import Avg, Q
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from django.db.models import Avg
-from rest_framework import filters, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
-from .permissions import IsAuthorAdminModeratorOrReadOnly
-
-
+from .permissions import (
+    AdminCreateDeleteOnlyPermission, IsAuthorAdminModeratorOrReadOnly)
 from .serializers import (
     CategorySerializer, GenreSerializer, TitleReadSerializer,
     TitleWriteSerializer, CommentSerializer, ReviewSerializer)
 from reviews.models import Category, Genre, Title, Comment, Review
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class AdminCreateDeleteMixin:
+    permission_classes = [AdminCreateDeleteOnlyPermission]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    http_method_names = ['get', 'post', 'delete']
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        slug = self.kwargs['pk']
+        obj = queryset.get(slug=slug)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
+class CategoryViewSet(AdminCreateDeleteMixin, viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = (filters.SearchFilter,)
-    # Поиск чувствителен только к регистру букв на кириллице.
-    search_fields = ('name',)
-    http_method_names = ['get', 'post', 'delete']
-    # DELETE запрос доработать. Удаление по id в эндпоинте, нужно по slug.
-    # К GenreViewSet то же.
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(AdminCreateDeleteMixin, viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    http_method_names = ['get', 'post', 'delete']
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    # Response в POST запросах отличается от документации.
-    # В GET запросах всё как надо.
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    permission_classes = [AdminCreateDeleteOnlyPermission]
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('year',)
+
+    def get_queryset(self):
+        queryset = self.queryset
+        genre = self.request.query_params.get('genre')
+        category = self.request.query_params.get('category')
+        name = self.request.query_params.get('name')
+
+        if genre:
+            queryset = queryset.filter(
+                Q(genre__name=genre) | Q(genre__slug=genre))
+        if category:
+            queryset = queryset.filter(
+                category__slug=category)
+        if name:
+            queryset = queryset.filter(
+                name__icontains=name)
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
