@@ -1,10 +1,8 @@
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
 from django.db import models
 
 ROLES = [
-        ('user', 'Аутентифицированный пользователь'),
+        ('user', 'Пользователь'),
         ('moderator', 'Модератор'),
         ('admin', 'Администратор'),
     ]
@@ -30,7 +28,10 @@ ROLES = [
     #         raise ValueError("Superuser must have is_superuser=True.")
     #
     #     return self.create_user(email, username, **extra_fields)
-
+# class Roles(models.TextChoices):
+#     user = 'Аутентифицированный пользователь'
+#     moderator = 'Модератор'
+#     admin = 'Администратор'
 
 class CustomUser(AbstractUser):
 
@@ -44,10 +45,7 @@ class CustomUser(AbstractUser):
                             choices=ROLES,
                             default='user',
                             blank=False,
-                            max_length=25)
-    # is_active = models.BooleanField(default=True)
-    # is_staff = models.BooleanField(default=False)
-    # is_superuser = models.BooleanField(default=False)
+                            max_length=50)
     first_name = models.CharField('Имя', max_length=150, null=True)
     last_name = models.CharField('Фамилия', max_length=150, null=True)
     confirmation_code = models.CharField(null=True, max_length=25)

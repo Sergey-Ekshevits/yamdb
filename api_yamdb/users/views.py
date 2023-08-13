@@ -10,7 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .permissions import IsAdmin
 from .serializers import (ConfirmationCodeSerializer, RegistrationSerializer,
-                          UsersSerializer, UserProfileSerializer)
+                          UserProfileSerializer, UsersSerializer)
 from .utils import confirmation_code_generator, send_verification_mail
 
 User = get_user_model()
@@ -94,7 +94,6 @@ class UsersViewset(viewsets.ModelViewSet):
         if user.role == 'admin':
             user.is_staff = True
         user.save()
-
 
     def perform_update(self, serializer):
         user = serializer.save()
