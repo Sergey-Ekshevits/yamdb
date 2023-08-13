@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view
@@ -10,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .permissions import IsAdmin
 from .serializers import (ConfirmationCodeSerializer, RegistrationSerializer,
-                          UsersSerializer)
+                          UsersSerializer, UserProfileSerializer)
 from .utils import confirmation_code_generator, send_verification_mail
 
 User = get_user_model()
@@ -31,7 +32,10 @@ class RegistrationAPIView(APIView):
         # print((existing_user.username, existing_user.email) != (username, user_email))
         if not existing_user:
             serializer.is_valid(raise_exception=True)
-            serializer.save(confirmation_code=generated_code)
+            try:
+                serializer.save(confirmation_code=generated_code)
+            except IntegrityError:
+                return Response("bad request", status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_200_OK)
         elif (existing_user.username, existing_user.email) != (username, user_email):
             return Response("bad user", status=status.HTTP_400_BAD_REQUEST)
@@ -61,15 +65,16 @@ def get_jwt_token(request):
 
 class UserProfileAPI(APIView):
     permission_classes = [IsAuthenticated]
+    serializers_class = UserProfileSerializer
 
     def get(self, request):
         user = request.user
-        serializer = UsersSerializer(user)
+        serializer = self.serializers_class(user)
         return Response(serializer.data)
 
     def patch(self, request):
         user = request.user
-        serializer = UsersSerializer(user, data=request.data, partial=True)
+        serializer = self.serializers_class(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

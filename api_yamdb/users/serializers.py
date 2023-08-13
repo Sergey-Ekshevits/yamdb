@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from users.models import CustomUser
 import re
+from users.models import ROLES
 
 
 User = get_user_model()
@@ -43,6 +44,23 @@ class ConfirmationCodeSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField()
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=150, required=True)
+    email = serializers.EmailField(max_length=254)
+    first_name = serializers.CharField(max_length=150, required=False)
+    last_name = serializers.CharField(max_length=150, required=False)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        read_only_fields = ['role']
+
+    def validate_username(self, value):
+        if value.lower() == 'me' or not re.match("^[\w.@+-]+$", value):
+            raise serializers.ValidationError('Некорректное имя пользователя')
+        return value
+
+
 class UsersSerializer(serializers.ModelSerializer):
     # username = serializers.RegexField(r"^[\w.@+-]+\z")
     # def __init__(self, *args, **kwargs):
@@ -58,12 +76,13 @@ class UsersSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254)
     first_name = serializers.CharField(max_length=150, required=False)
     last_name = serializers.CharField(max_length=150, required=False)
+    role = serializers.ChoiceField(choices=ROLES, required=False)
     # password = serializers.CharField(max_length=254, write_only=True)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
-        read_only_fields = ['role']
+        # read_only_fields = ['role']
         validators = [
             UniqueTogetherValidator(
                 queryset=User.objects.all(),
@@ -72,12 +91,13 @@ class UsersSerializer(serializers.ModelSerializer):
             )
         ]
 
-    # def get_fields(self):
-    #     fields = super().get_fields()
-    #     request = self.context.get("request", None)
-    #     if request and request.user.is_staff and request.user.is_superuser is False:
-    #         fields['role'].read_only = True
-    #     return fields
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get("request", None)
+        # print(request.user.is_staff)
+        if request and not request.user.is_staff:
+            fields['role'].read_only = True
+        return fields
 
     def validate_username(self, value):
         if value.lower() == 'me' or not re.match("^[\w.@+-]+$", value):

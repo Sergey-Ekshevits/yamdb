@@ -3,7 +3,11 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-
+ROLES = [
+        ('user', 'Аутентифицированный пользователь'),
+        ('moderator', 'Модератор'),
+        ('admin', 'Администратор'),
+    ]
 
 # Надеюсь, это нам не понадобится
 
@@ -29,11 +33,7 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    ROLES = [
-        ('user', 'Аутентифицированный пользователь'),
-        ('moderator', 'Модератор'),
-        ('admin', 'Администратор'),
-    ]
+
     username = models.CharField('Имя пользователя',
                                 max_length=150,
                                 unique=True
