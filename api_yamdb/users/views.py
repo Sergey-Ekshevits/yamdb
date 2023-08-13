@@ -88,10 +88,13 @@ class UsersViewset(viewsets.ModelViewSet):
     search_fields = ['username']
 
     def perform_create(self, serializer):
+        print(serializer.is_valid())
+        serializer.is_valid(raise_exception=True)
         user = serializer.save()
         if user.role == 'admin':
             user.is_staff = True
         user.save()
+
 
     def perform_update(self, serializer):
         user = serializer.save()

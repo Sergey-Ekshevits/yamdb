@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from users.models import CustomUser
 import re
 from users.models import ROLES
@@ -26,10 +26,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     #     )
     # ]
 
-    def create(self, validated_data):
-        obj, result = CustomUser.objects.get_or_create(**validated_data)
-        print(result)
-        return obj
+    # def create(self, validated_data):
+    #     obj, result = CustomUser.objects.get_or_create(**validated_data)
+    #     print(result)
+    #     return obj
 
     def validate_username(self, value):
         if value.lower() == 'me' or not re.match("^[\w.@+-]+$", value):
@@ -72,8 +72,11 @@ class UsersSerializer(serializers.ModelSerializer):
     #     else:
     #         self.fields['email'].required = False
 
-    username = serializers.CharField(max_length=150, required=True)
-    email = serializers.EmailField(max_length=254)
+    username = serializers.CharField(max_length=150,
+                                     required=True,
+                                     validators=[UniqueValidator(queryset=User.objects.all())])
+    email = serializers.EmailField(max_length=254,
+                                   validators=[UniqueValidator(queryset=User.objects.all())])
     first_name = serializers.CharField(max_length=150, required=False)
     last_name = serializers.CharField(max_length=150, required=False)
     role = serializers.ChoiceField(choices=ROLES, required=False)
@@ -88,7 +91,7 @@ class UsersSerializer(serializers.ModelSerializer):
                 queryset=User.objects.all(),
                 fields=('username', 'email'),
                 message="Такой пользователь уже есть"
-            )
+            ),
         ]
 
     def get_fields(self):
@@ -103,3 +106,8 @@ class UsersSerializer(serializers.ModelSerializer):
         if value.lower() == 'me' or not re.match("^[\w.@+-]+$", value):
             raise serializers.ValidationError('Некорректное имя пользователя')
         return value
+
+    # def create(self, validated_data):
+    #     obj, result = CustomUser.objects.get_or_create(**validated_data)
+    #     print(result)
+    #     return obj
