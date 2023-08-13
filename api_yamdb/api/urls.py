@@ -10,7 +10,6 @@ from users.views import (RegistrationAPIView,
 
 router = routers.DefaultRouter()
 router.register(r'users', UsersViewset)
-
 router.register(r'categories', CategoryViewSet)
 router.register(r'genres', GenreViewSet)
 router.register(r'titles', TitleViewSet)
