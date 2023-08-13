@@ -41,7 +41,8 @@ class RegistrationAPIView(APIView):
         elif (existing_user.username,
               existing_user.email) != (username,
                                        user_email):
-            return Response("bad user", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Такой пользователь уже есть",
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             existing_user.confirmation_code = generated_code
             existing_user.save()
