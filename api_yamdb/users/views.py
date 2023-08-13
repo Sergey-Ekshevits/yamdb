@@ -26,21 +26,28 @@ class RegistrationAPIView(APIView):
         username = request.data.get('username')
         generated_code = confirmation_code_generator()
         serializer = self.serializer_class(data=user)
-        existing_user = User.objects.filter(email=user_email, username=username).first()
+        existing_user = User.objects.filter(email=user_email,
+                                            username=username).first()
         send_verification_mail(user_email, generated_code)
         if not existing_user:
             serializer.is_valid(raise_exception=True)
             try:
                 serializer.save(confirmation_code=generated_code)
             except IntegrityError:
-                return Response("bad request", status=status.HTTP_400_BAD_REQUEST)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        elif (existing_user.username, existing_user.email) != (username, user_email):
-            return Response("bad user", status=status.HTTP_400_BAD_REQUEST)
+                return Response("bad request",
+                                status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data,
+                            status=status.HTTP_200_OK)
+        elif (existing_user.username,
+              existing_user.email) != (username,
+                                       user_email):
+            return Response("Такой пользователь уже есть",
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
             existing_user.confirmation_code = generated_code
             existing_user.save()
-        return Response("success", status=status.HTTP_200_OK)
+        return Response("Сообщение с кодом отправлено",
+                        status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -54,9 +61,11 @@ def get_jwt_token(request):
             user = get_object_or_404(User, username=username)
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
-            return Response({'token': access_token}, status=status.HTTP_200_OK)
+            return Response({'token': access_token},
+                            status=status.HTTP_200_OK)
         else:
-            return Response({'message': 'Invalid confirmation code'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Неверный код'},
+                            status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -71,7 +80,9 @@ class UserProfileAPI(APIView):
 
     def patch(self, request):
         user = request.user
-        serializer = self.serializers_class(user, data=request.data, partial=True)
+        serializer = self.serializers_class(user,
+                                            data=request.data,
+                                            partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -88,7 +99,6 @@ class UsersViewset(viewsets.ModelViewSet):
     search_fields = ['username']
 
     def perform_create(self, serializer):
-        print(serializer.is_valid())
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         if user.role == 'admin':
