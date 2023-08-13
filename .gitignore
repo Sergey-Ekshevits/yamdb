@@ -149,3 +149,4 @@ dmypy.json
 media/
 
 .gitconfig
+api_yamdb/sent_emails

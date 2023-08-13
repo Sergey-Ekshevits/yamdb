@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig',
     'users.apps.UsersConfig',
@@ -79,7 +80,7 @@ DATABASES = {
 }
 
 
-#CUSTOM USER MODEL Очень важно!
+# CUSTOM USER MODEL Очень важно!
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Password validation

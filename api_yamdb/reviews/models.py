@@ -23,7 +23,7 @@ class Genre(CategoryGenreMixin):
 
 
 class Title(models.Model):
-    YEAR_CHOICES = [(year, year) for year in range(1895, 2023)]
+    YEAR_CHOICES = [(year, year) for year in range(1895, 2024)]
 
     name = models.CharField(max_length=256)
     year = models.PositiveIntegerField(choices=YEAR_CHOICES)
