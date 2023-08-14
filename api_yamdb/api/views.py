@@ -1,4 +1,5 @@
 from django.db.models import Avg, Q
+from django.db.models.functions import Round
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
@@ -47,7 +48,7 @@ class GenreViewSet(AdminMixin, viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(rating=Round(Avg('reviews__score')))
     permission_classes = [AdminOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('year',)
