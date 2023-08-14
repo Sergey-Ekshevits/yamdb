@@ -6,18 +6,17 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from .permissions import (
-    AdminCreateDeleteOnlyPermission, IsAuthorAdminModeratorOrReadOnly)
+    AdminOrReadOnly, IsAuthorAdminModeratorOrReadOnly)
 from .serializers import (
     CategorySerializer, GenreSerializer, TitleReadSerializer,
     TitleWriteSerializer, CommentSerializer, ReviewSerializer)
 from reviews.models import Category, Genre, Title, Comment, Review
 
 
-class AdminCreateDeleteMixin:
-    permission_classes = [AdminCreateDeleteOnlyPermission]
+class AdminMixin:
+    permission_classes = [AdminOrReadOnly]
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    http_method_names = ['get', 'post', 'delete']
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -35,19 +34,21 @@ class AdminCreateDeleteMixin:
         return obj
 
 
-class CategoryViewSet(AdminCreateDeleteMixin, viewsets.ModelViewSet):
+class CategoryViewSet(AdminMixin, viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    http_method_names = ['get', 'post', 'delete']
 
 
-class GenreViewSet(AdminCreateDeleteMixin, viewsets.ModelViewSet):
+class GenreViewSet(AdminMixin, viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    http_method_names = ['get', 'post', 'delete']
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
-    permission_classes = [AdminCreateDeleteOnlyPermission]
+    permission_classes = [AdminOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('year',)
 
