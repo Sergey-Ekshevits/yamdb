@@ -16,7 +16,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
 
 
 class AdminMixin:
-    permission_classes = [AdminOrReadOnly]
+    permission_classes = (AdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
@@ -39,18 +39,18 @@ class AdminMixin:
 class CategoryViewSet(AdminMixin, viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    http_method_names = ['get', 'post', 'delete']
+    http_method_names = ('get', 'post', 'delete')
 
 
 class GenreViewSet(AdminMixin, viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    http_method_names = ['get', 'post', 'delete']
+    http_method_names = ('get', 'post', 'delete')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Round(Avg('reviews__score')))
-    permission_classes = [AdminOrReadOnly]
+    permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('year',)
 
