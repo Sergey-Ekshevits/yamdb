@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import Category, Genre, Title, Comment, Review
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -41,8 +41,6 @@ class TitleWriteSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Review."""
-
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
@@ -50,8 +48,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
-        """Запрещает повторно оставлять отзывы."""
-
         if self.context.get('request').method != 'POST':
             return data
         author = self.context.get('request').user
@@ -64,8 +60,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Comment."""
-
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:

@@ -1,8 +1,10 @@
 import re
 
 from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+
 from users.models import ROLES
 
 User = get_user_model()
