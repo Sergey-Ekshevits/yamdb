@@ -5,14 +5,14 @@ from django.core.mail import send_mail
 
 
 def confirmation_code_generator():
-    """Функция генерации кода доступа"""
+    """Функция генерации кода доступа."""
 
     return str(''.join(random.choice(string.ascii_uppercase + string.digits)
                        for _ in range(12)))
 
 
 def send_verification_mail(email, code):
-    """Функция отправки e-mail с кодом доступа"""
+    """Функция отправки e-mail с кодом доступа."""
 
     subject = 'Код подтверждения для входа на YaMDB'
     message = f'Ваш код подтверждения для входа:\n{code}\n'
