@@ -44,7 +44,7 @@ class UserSerializerMixin(serializers.Serializer):
 class RegistrationSerializer(UserSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ('username', 'email')
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):
@@ -61,7 +61,7 @@ class UserProfileSerializer(UserSerializerMixin, serializers.ModelSerializer):
                   'last_name',
                   'bio',
                   'role')
-        read_only_fields = ['role']
+        read_only_fields = ('role',)
 
 
 class UsersSerializer(UserSerializerMixin, serializers.ModelSerializer):

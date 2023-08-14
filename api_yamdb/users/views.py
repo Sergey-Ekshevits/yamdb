@@ -70,7 +70,7 @@ def get_jwt_token(request):
 
 
 class UserProfileAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     serializers_class = UserProfileSerializer
 
     def get(self, request):
@@ -93,10 +93,10 @@ class UsersViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
     http_method_names = ('patch', 'get', 'delete', 'post')
     serializer_class = UsersSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = (filters.SearchFilter,)
     permission_classes = (IsAdmin,)
     lookup_field = 'username'
-    search_fields = ['username']
+    search_fields = ('username',)
 
     def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
