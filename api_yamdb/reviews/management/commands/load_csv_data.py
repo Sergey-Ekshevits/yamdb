@@ -1,7 +1,7 @@
 import csv
 
 from django.core.management.base import BaseCommand
-
+from django.db import transaction
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import CustomUser
 
@@ -68,18 +68,21 @@ class Command(BaseCommand):
 
         with open('static/data/review.csv', 'r', encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)
-            for row in csv_reader:
-                author = CustomUser.objects.get(id=row['author'])
-                title = Title.objects.get(id=row['title_id'])
-                review = Review(
-                    text=row['text'],
-                    score=row['score'],
-                    pub_date=row['pub_date'],
-                    author=author,
-                    title=title)
-                review.save()
-            self.stdout.write(self.style.SUCCESS(
-                'static/data/review.csv загружен в базу данных'))
+            with transaction.atomic():
+                for row in csv_reader:
+                    author = CustomUser.objects.get(id=row['author'])
+                    title = Title.objects.get(id=row['title_id'])
+                    text = row['text'].replace('\n', ' ')
+                    pub_date = row['pub_date']
+                    review = Review(
+                        text=text,
+                        score=row['score'],
+                        pub_date=pub_date,
+                        author=author,
+                        title=title)
+                    review.save()
+                self.stdout.write(self.style.SUCCESS(
+                    'static/data/review.csv загружен в базу данных'))
 
         with open('static/data/comments.csv', 'r', encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)

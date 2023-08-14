@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 from django.db.models import UniqueConstraint
+
 from users.models import CustomUser
 
 
@@ -67,7 +68,7 @@ class Review(models.Model):
     """Модель отзывов."""
     CHOICES = [(score, score) for score in range(1, 11)]
 
-    text = models.TextField('Текст отзыва', help_text='Отзыв')
+    text = models.TextField('Текст отзыва')
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
