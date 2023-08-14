@@ -22,10 +22,12 @@ class CustomUser(AbstractUser):
                             default='user',
                             blank=False,
                             max_length=50)
-    first_name = models.CharField('Имя', max_length=150, null=True, blank=True)
-    last_name = models.CharField('Фамилия', max_length=150, null=True, blank=True)
+    first_name = models.CharField('Имя', max_length=150,
+                                  null=True, blank=True)
+    last_name = models.CharField('Фамилия', max_length=150,
+                                 null=True, blank=True)
     confirmation_code = models.CharField(null=True, max_length=25)
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
     class Meta:
@@ -35,3 +37,8 @@ class CustomUser(AbstractUser):
                 name='unique_username_email'
             )
         ]
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
