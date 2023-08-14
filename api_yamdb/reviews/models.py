@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import UniqueConstraint
+
 from users.models import CustomUser
 
 
@@ -42,26 +43,24 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    """Класс отзывов."""
-
     CHOICES = [(score, score) for score in range(1, 11)]
 
-    text = models.TextField('Текст отзыва', help_text='Отзыв')
-
-    author = models.ForeignKey(CustomUser,
-                               on_delete=models.CASCADE,
-                               related_name='reviews')
-
-    score = models.SmallIntegerField('Оценка',
-                                     help_text='от 1 до 10',
-                                     choices=CHOICES)
-
-    pub_date = models.DateTimeField('Дата добавления',
-                                    auto_now_add=True)
-
-    title = models.ForeignKey(Title,
-                              on_delete=models.CASCADE,
-                              related_name='reviews')
+    text = models.TextField('Текст отзыва')
+    author = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='reviews')
+    score = models.SmallIntegerField(
+        'Оценка',
+        help_text='от 1 до 10',
+        choices=CHOICES)
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True)
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews')
 
     class Meta:
         verbose_name = 'Отзыв'
@@ -79,20 +78,18 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    """Класс комментариев."""
-
     text = models.TextField('Текст комментария')
-
-    author = models.ForeignKey(CustomUser,
-                               on_delete=models.CASCADE,
-                               related_name='comments')
-
-    pub_date = models.DateTimeField('Дата добавления',
-                                    auto_now_add=True)
-
-    review = models.ForeignKey(Review,
-                               on_delete=models.CASCADE,
-                               related_name='comments')
+    author = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='comments')
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,)
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments')
 
     class Meta:
         verbose_name = 'Комментарий'
