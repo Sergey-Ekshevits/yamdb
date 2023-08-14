@@ -10,14 +10,14 @@ class CategoryGenreMixin(models.Model):
     Абстрактная модель для моделей Category и Genre.
     Содержит поля name и slug.
     """
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.name
+    name = models.CharField('Название', max_length=256)
+    slug = models.SlugField('Слаг', max_length=50, unique=True)
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        return self.name
 
 
 class Category(CategoryGenreMixin):
@@ -30,7 +30,6 @@ class Category(CategoryGenreMixin):
 
 class Genre(CategoryGenreMixin):
     """Модель жанров произведений."""
-    pass
 
     class Meta:
         verbose_name = 'жанр'
@@ -42,17 +41,19 @@ class Title(models.Model):
     current_year = datetime.datetime.now().year
     YEAR_CHOICES = [(year, year) for year in range(1895, current_year + 1)]
 
-    name = models.CharField(max_length=256)
-    year = models.PositiveIntegerField(choices=YEAR_CHOICES)
-    description = models.TextField(blank=True)
+    name = models.CharField('Название', max_length=256)
+    year = models.PositiveIntegerField('Год выпуска', choices=YEAR_CHOICES)
+    description = models.TextField('Описание', blank=True)
     genre = models.ManyToManyField(
         Genre,
-        related_name='genres')
+        related_name='genres',
+        verbose_name='жанр')
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='categories')
+        related_name='categories',
+        verbose_name='категория')
 
     class Meta:
         verbose_name = 'произведение'
@@ -70,7 +71,8 @@ class Review(models.Model):
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='reviews')
+        related_name='reviews',
+        verbose_name='Автор')
     score = models.SmallIntegerField(
         'Оценка',
         help_text='от 1 до 10',
@@ -81,7 +83,8 @@ class Review(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews')
+        related_name='reviews',
+        verbose_name='Произведение')
 
     class Meta:
         verbose_name = 'отзыв'
@@ -104,14 +107,16 @@ class Comment(models.Model):
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='comments')
+        related_name='comments',
+        verbose_name='Автор')
     pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True)
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments')
+        related_name='comments',
+        verbose_name='Отзыв')
 
     class Meta:
         verbose_name = 'комментарий'
