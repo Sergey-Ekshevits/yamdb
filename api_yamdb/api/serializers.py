@@ -5,6 +5,7 @@ from reviews.models import Category, Genre, Title, Comment, Review
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Category."""
 
     class Meta:
         model = Category
@@ -12,6 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Genre."""
 
     class Meta:
         model = Genre
@@ -19,6 +21,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title для GET-запросов."""
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
     rating = serializers.IntegerField(read_only=True)
@@ -30,6 +33,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title для всех запросов, кроме GET."""
     genre = SlugRelatedField(
         slug_field='slug', queryset=Genre.objects.all(), many=True)
     category = SlugRelatedField(
@@ -50,7 +54,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
-        """Запрещает повторно оставлять отзывы."""
+        """Запрещает повторно оставлять отзывы на одно и тоже произведение."""
 
         if self.context.get('request').method != 'POST':
             return data
