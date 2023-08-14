@@ -70,7 +70,7 @@ def get_jwt_token(request):
 
 
 class UserProfileAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     serializers_class = UserProfileSerializer
 
     def get(self, request):

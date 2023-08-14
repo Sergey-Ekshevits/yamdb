@@ -1,8 +1,9 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
+
 from users.models import CustomUser
-from django import forms
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -25,12 +26,10 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email','first_name', 'last_name', 'role',
+            'fields': ('username', 'email', 'first_name', 'last_name', 'role',
                        'bio', 'is_staff'),
         }),
     )
-    # fields = UserAdmin.fieldsets + ('role',)
-
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
