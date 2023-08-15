@@ -17,6 +17,7 @@
 * Django 3.2
 * Django REST
 * JSON Web Token
+* SQLite
 
 ### :arrow_forward: Деплой проекта
 Клонировать репозиторий в командной строке:
