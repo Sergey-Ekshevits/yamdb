@@ -57,7 +57,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(
                 'static/data/titles.csv загружен в базу данных'))
 
-        with open('static/data/genre_title.csv', 'r', encoding='utf-8') as file:
+        with open('static/data/genre_title.csv',
+                  'r', encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)
             for row in csv_reader:
                 title = Title.objects.get(id=row['title_id'])
