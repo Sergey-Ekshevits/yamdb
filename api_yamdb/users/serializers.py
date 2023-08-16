@@ -3,7 +3,7 @@ import re
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from rest_framework.validators import UniqueValidator
 
 from users.models import ROLES
 
@@ -34,13 +34,6 @@ class UserSerializerMixin(serializers.Serializer):
                   'last_name',
                   'bio',
                   'role')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=User.objects.all(),
-                fields=('username', 'email'),
-                message="Такой пользователь уже есть"
-            ),
-        ]
 
 
 class RegistrationSerializer(UserSerializerMixin, serializers.ModelSerializer):

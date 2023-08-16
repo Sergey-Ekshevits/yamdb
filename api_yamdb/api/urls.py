@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from users.views import (RegistrationAPIView, UserProfileAPI, UsersViewset,
+from users.views import (registration, UserProfileAPI, UsersViewset,
                          get_jwt_token)
 
 from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
@@ -20,7 +20,7 @@ router.register(
 
 
 urlpatterns = [
-    path('v1/auth/signup/', RegistrationAPIView.as_view()),
+    path('v1/auth/signup/', registration, name='registration'),
     path('v1/auth/token/', get_jwt_token, name='token_obtain'),
     path('v1/users/me/', UserProfileAPI.as_view()),
     path('v1/', include(router.urls)),
