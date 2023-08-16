@@ -85,13 +85,6 @@ class UsersViewset(viewsets.ModelViewSet):
     lookup_field = 'username'
     search_fields = ('username',)
 
-    def perform_create(self, serializer):
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        if user.role == 'admin':
-            user.is_staff = True
-        user.save()
-
     def perform_update(self, serializer):
         user = serializer.save()
         if user.role == 'admin':
