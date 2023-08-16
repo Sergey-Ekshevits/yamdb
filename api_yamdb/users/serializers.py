@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from users.models import ROLES
+from users.models import Roles
 
 User = get_user_model()
 
@@ -74,4 +74,4 @@ class UsersSerializer(UserSerializerMixin, serializers.ModelSerializer):
 
     role = serializers.ChoiceField(required=False,
                                    default='user',
-                                   choices=ROLES)
+                                   choices=[role.name for role in Roles])

@@ -1,11 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from enum import Enum
 
-ROLES = [
-    ('user', 'Пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Администратор'),
-]
+
+class Roles(Enum):
+    user = 'Пользователь'
+    moderator = 'Модератор'
+    admin = 'Администратор'
 
 
 class CustomUser(AbstractUser):
@@ -21,8 +22,8 @@ class CustomUser(AbstractUser):
     bio = models.TextField('Биография', blank=True)
     role = models.CharField(
         'Роль',
-        choices=ROLES,
-        default='user',
+        choices=[(role, role.value) for role in Roles],
+        default=Roles.user,
         blank=False,
         max_length=50)
     USERNAME_FIELD = 'username'
