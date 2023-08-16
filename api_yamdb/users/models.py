@@ -11,10 +11,6 @@ class Roles(Enum):
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
-    username = models.CharField('Имя пользователя',
-                                max_length=150,
-                                unique=True
-                                )
     email = models.EmailField(
         'E-mail пользователя',
         max_length=254,
