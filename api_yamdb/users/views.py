@@ -19,15 +19,14 @@ User = get_user_model()
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def registration(request):
-    user = request.data
     user_email = request.data.get('email')
     username = request.data.get('username')
-    serializer = RegistrationSerializer(data=user)
+    serializer = RegistrationSerializer(data=request.data)
     try:
         serializer.is_valid(raise_exception=True)
-        new_user, created = User.objects.get_or_create(username=username,
-                                                       email=user_email)
-        generated_code = default_token_generator.make_token(new_user)
+        user, created = User.objects.get_or_create(username=username,
+                                                   email=user_email)
+        generated_code = default_token_generator.make_token(user)
         send_verification_mail(user_email, generated_code)
         if not created:
             return Response('sent email', status=status.HTTP_200_OK)
