@@ -10,10 +10,6 @@ ROLES = [
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
-    username = models.CharField(
-        'Имя пользователя',
-        max_length=150,
-        unique=True)
     email = models.EmailField(
         'E-mail пользователя',
         max_length=254,
@@ -25,16 +21,6 @@ class CustomUser(AbstractUser):
         default='user',
         blank=False,
         max_length=50)
-    first_name = models.CharField(
-        'Имя',
-        max_length=150,
-        null=True, blank=True)
-    last_name = models.CharField(
-        'Фамилия',
-        max_length=150,
-        null=True,
-        blank=True)
-    confirmation_code = models.CharField(null=True, max_length=25)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
