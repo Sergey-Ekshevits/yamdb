@@ -3,10 +3,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .permissions import IsAdmin
@@ -56,26 +55,6 @@ def get_jwt_token(request):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserProfileAPI(APIView):
-    permission_classes = (IsAuthenticated,)
-    serializers_class = UserProfileSerializer
-
-    def get(self, request):
-        user = request.user
-        serializer = self.serializers_class(user)
-        return Response(serializer.data)
-
-    def patch(self, request):
-        user = request.user
-        serializer = self.serializers_class(user,
-                                            data=request.data,
-                                            partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class UsersViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
     http_method_names = ('patch', 'get', 'delete', 'post')
@@ -92,3 +71,22 @@ class UsersViewset(viewsets.ModelViewSet):
         else:
             user.is_staff = False
         user.save()
+
+    @action(methods=['get'], url_path='me', detail=False,
+            permission_classes=(IsAuthenticated,))
+    def get(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
+
+    @action(methods=['patch'], url_path='me', detail=False,
+            permission_classes=(IsAuthenticated,))
+    def patch(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user,
+                                           data=request.data,
+                                           partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

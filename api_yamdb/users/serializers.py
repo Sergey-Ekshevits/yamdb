@@ -14,10 +14,12 @@ class UserSerializerMixin(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
     email = serializers.EmailField(
         max_length=254,
-        required=True
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
     first_name = serializers.CharField(max_length=150, required=False)
     last_name = serializers.CharField(max_length=150, required=False)
@@ -38,6 +40,15 @@ class UserSerializerMixin(serializers.Serializer):
 
 
 class RegistrationSerializer(UserSerializerMixin, serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=150,
+        required=True,
+    )
+    email = serializers.EmailField(
+        max_length=254,
+        required=True,
+    )
+
     class Meta:
         model = User
         fields = ('username', 'email')
@@ -61,17 +72,6 @@ class UserProfileSerializer(UserSerializerMixin, serializers.ModelSerializer):
 
 
 class UsersSerializer(UserSerializerMixin, serializers.ModelSerializer):
-    username = serializers.CharField(
-        max_length=150,
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    email = serializers.EmailField(
-        max_length=254,
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-
     role = serializers.ChoiceField(required=False,
                                    default='user',
                                    choices=[role.name for role in Roles])
