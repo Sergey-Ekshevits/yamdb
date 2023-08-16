@@ -16,6 +16,7 @@ from .utils import send_verification_mail
 
 User = get_user_model()
 
+
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def registration(request):
@@ -23,30 +24,18 @@ def registration(request):
     user_email = request.data.get('email')
     username = request.data.get('username')
     serializer = RegistrationSerializer(data=user)
-    existing_user = User.objects.filter(email=user_email,
-                                        username=username).first()
-    if not existing_user:
+    try:
         serializer.is_valid(raise_exception=True)
-        try:
-            new_user = serializer.save()
-            generated_code = default_token_generator.make_token(new_user)
-            send_verification_mail(user_email, generated_code)
-        except IntegrityError:
-            return Response("bad request",
-                            status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data,
-                        status=status.HTTP_200_OK)
-    elif (existing_user.username,
-          existing_user.email) != (username,
-                                   user_email):
-        return Response("Такой пользователь уже есть",
-                        status=status.HTTP_400_BAD_REQUEST)
-    else:
-        generated_code = default_token_generator.make_token(existing_user)
+        new_user, created = User.objects.get_or_create(username=username,
+                                                       email=user_email)
+        generated_code = default_token_generator.make_token(new_user)
         send_verification_mail(user_email, generated_code)
-        existing_user.save()
-    return Response("Сообщение с кодом отправлено",
-                    status=status.HTTP_200_OK)
+        if not created:
+            return Response('sent email', status=status.HTTP_200_OK)
+    except IntegrityError:
+        return Response("bad request",
+                        status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

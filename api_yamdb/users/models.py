@@ -10,6 +10,10 @@ ROLES = [
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
+    username = models.CharField('Имя пользователя',
+                                max_length=150,
+                                unique=True
+                                )
     email = models.EmailField(
         'E-mail пользователя',
         max_length=254,
@@ -25,12 +29,6 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['email']
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['username', 'email'],
-                name='unique_username_email'
-            )
-        ]
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
 

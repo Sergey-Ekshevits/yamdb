@@ -14,10 +14,11 @@ class UserSerializerMixin(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())])
+    )
     email = serializers.EmailField(
         max_length=254,
-        validators=[UniqueValidator(queryset=User.objects.all())])
+        required=True
+    )
     first_name = serializers.CharField(max_length=150, required=False)
     last_name = serializers.CharField(max_length=150, required=False)
 
@@ -60,6 +61,17 @@ class UserProfileSerializer(UserSerializerMixin, serializers.ModelSerializer):
 
 
 class UsersSerializer(UserSerializerMixin, serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=150,
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    email = serializers.EmailField(
+        max_length=254,
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
     role = serializers.ChoiceField(required=False,
                                    default='user',
                                    choices=ROLES)
