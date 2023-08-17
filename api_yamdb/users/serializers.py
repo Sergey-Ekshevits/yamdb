@@ -3,9 +3,9 @@ import re
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from rest_framework.validators import UniqueValidator
 
-from users.models import ROLES
+from users.models import Roles
 
 User = get_user_model()
 
@@ -14,10 +14,13 @@ class UserSerializerMixin(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())])
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
     email = serializers.EmailField(
         max_length=254,
-        validators=[UniqueValidator(queryset=User.objects.all())])
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
     first_name = serializers.CharField(max_length=150, required=False)
     last_name = serializers.CharField(max_length=150, required=False)
 
@@ -34,16 +37,18 @@ class UserSerializerMixin(serializers.Serializer):
                   'last_name',
                   'bio',
                   'role')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=User.objects.all(),
-                fields=('username', 'email'),
-                message="Такой пользователь уже есть"
-            ),
-        ]
 
 
 class RegistrationSerializer(UserSerializerMixin, serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=150,
+        required=True,
+    )
+    email = serializers.EmailField(
+        max_length=254,
+        required=True,
+    )
+
     class Meta:
         model = User
         fields = ('username', 'email')
@@ -69,4 +74,4 @@ class UserProfileSerializer(UserSerializerMixin, serializers.ModelSerializer):
 class UsersSerializer(UserSerializerMixin, serializers.ModelSerializer):
     role = serializers.ChoiceField(required=False,
                                    default='user',
-                                   choices=ROLES)
+                                   choices=[role.name for role in Roles])

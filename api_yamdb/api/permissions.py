@@ -18,11 +18,9 @@ class IsAuthorAdminModeratorOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        has_permission = (
+        return (
             request.user.is_authenticated and (
                 request.user == obj.author or request.user.role
                 in ['moderator', 'admin']
             )
         )
-
-        return has_permission
