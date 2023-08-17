@@ -1,14 +1,4 @@
-import random
-import string
-
 from django.core.mail import send_mail
-
-
-def confirmation_code_generator():
-    """Функция генерации кода доступа."""
-
-    return str(''.join(random.choice(string.ascii_uppercase + string.digits)
-                       for _ in range(12)))
 
 
 def send_verification_mail(email, code):
