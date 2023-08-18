@@ -22,7 +22,6 @@ def registration(request):
     user_email = request.data.get('email')
     username = request.data.get('username')
     serializer = RegistrationSerializer(data=request.data)
-    #Проверка нужна, без нее не проходит тест
     try:
         serializer.is_valid(raise_exception=True)
         user, created = User.objects.get_or_create(username=username,
@@ -82,4 +81,3 @@ class UsersViewset(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
