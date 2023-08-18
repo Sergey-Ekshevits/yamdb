@@ -71,16 +71,9 @@ class UsersViewset(viewsets.ModelViewSet):
             user.is_staff = False
         user.save()
 
-    @action(methods=['get'], url_path='me', detail=False,
+    @action(methods=['get', 'patch'], url_path='me', detail=False,
             permission_classes=(IsAuthenticated,))
-    def get(self, request):
-        user = request.user
-        serializer = UserProfileSerializer(user)
-        return Response(serializer.data)
-
-    @action(methods=['patch'], url_path='me', detail=False,
-            permission_classes=(IsAuthenticated,))
-    def patch(self, request):
+    def me(self, request):
         user = request.user
         serializer = UserProfileSerializer(user,
                                            data=request.data,
@@ -89,3 +82,4 @@ class UsersViewset(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
