@@ -9,6 +9,9 @@ class Roles(Enum):
     moderator = 'Модератор'
     admin = 'Администратор'
 
+    def get_all_roles():
+        return [(role, role.value) for role in Roles]
+
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
@@ -19,7 +22,7 @@ class CustomUser(AbstractUser):
     bio = models.TextField('Биография', blank=True)
     role = models.CharField(
         'Роль',
-        choices=[(role, role.value) for role in Roles],
+        choices=Roles.get_all_roles(),
         default=Roles.user,
         blank=False,
         max_length=50)
