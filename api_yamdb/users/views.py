@@ -22,6 +22,7 @@ def registration(request):
     user_email = request.data.get('email')
     username = request.data.get('username')
     serializer = RegistrationSerializer(data=request.data)
+    #Проверка нужна, без нее не проходит тест
     try:
         serializer.is_valid(raise_exception=True)
         user, created = User.objects.get_or_create(username=username,
@@ -49,9 +50,8 @@ def get_jwt_token(request):
         access_token = str(refresh.access_token)
         return Response({'token': access_token},
                         status=status.HTTP_200_OK)
-    else:
-        return Response({'message': 'Неверный код'},
-                        status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': 'Неверный код'},
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class UsersViewset(viewsets.ModelViewSet):
