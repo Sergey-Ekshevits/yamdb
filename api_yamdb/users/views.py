@@ -49,9 +49,8 @@ def get_jwt_token(request):
         access_token = str(refresh.access_token)
         return Response({'token': access_token},
                         status=status.HTTP_200_OK)
-    else:
-        return Response({'message': 'Неверный код'},
-                        status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': 'Неверный код'},
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class UsersViewset(viewsets.ModelViewSet):
@@ -71,16 +70,9 @@ class UsersViewset(viewsets.ModelViewSet):
             user.is_staff = False
         user.save()
 
-    @action(methods=['get'], url_path='me', detail=False,
+    @action(methods=['get', 'patch'], url_path='me', detail=False,
             permission_classes=(IsAuthenticated,))
-    def get(self, request):
-        user = request.user
-        serializer = UserProfileSerializer(user)
-        return Response(serializer.data)
-
-    @action(methods=['patch'], url_path='me', detail=False,
-            permission_classes=(IsAuthenticated,))
-    def patch(self, request):
+    def me(self, request):
         user = request.user
         serializer = UserProfileSerializer(user,
                                            data=request.data,
